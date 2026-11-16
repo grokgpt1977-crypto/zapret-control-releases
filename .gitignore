@@ -1,0 +1,15 @@
+# Attach installers and archives to Releases instead of committing them.
+*.exe
+*.dll
+*.sys
+*.zip
+*.pfx
+*.p12
+*.pem
+*.key
+.env
+.env.*
+private/
+server/
+StoreInstallerTests/
+LOCAL-PUBLISH-GUIDE.txt
