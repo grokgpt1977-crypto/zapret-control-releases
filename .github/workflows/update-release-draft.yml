@@ -1,0 +1,34 @@
+name: Update release draft
+on:
+  push:
+    branches: [main]
+    paths: ['release-draft.json']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  update-draft:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update existing draft only
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          python3 - <<'PY'
+          import os,json,base64,urllib.request
+          base='https://api.github.com/repos/'+os.environ['REPOSITORY']
+          def api(path, data=None):
+              req=urllib.request.Request(base+path,data=None if data is None else json.dumps(data).encode(),headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'},method='GET' if data is None else 'PATCH')
+              with urllib.request.urlopen(req,timeout=30) as r: return json.load(r)
+          cfg=json.loads(base64.b64decode(api('/contents/release-draft.json?ref=main')['content']))
+          assert cfg['release_id']==448199630 and cfg['tag_name']=='v0.3.5.74'
+          current=api('/releases/448199630')
+          assert current['draft'] is True, 'Refusing to change a published release'
+          assert current['tag_name'] in ['v0.3.5.70','v0.3.5.74']
+          body=base64.b64decode(api('/contents/releases/0.3.5.74.md?ref=main')['content']).decode()
+          result=api('/releases/448199630',{'tag_name':cfg['tag_name'],'name':'ZAPRET CONTROL 0.3.5.74','body':body,'draft':True,'prerelease':False})
+          assert result['draft'] is True and result['tag_name']=='v0.3.5.74'
+          print('Updated draft:',result['html_url'])
+          PY
