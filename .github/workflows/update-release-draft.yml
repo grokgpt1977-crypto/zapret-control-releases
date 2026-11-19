@@ -23,12 +23,12 @@ jobs:
               req=urllib.request.Request(base+path,data=None if data is None else json.dumps(data).encode(),headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'},method='GET' if data is None else 'PATCH')
               with urllib.request.urlopen(req,timeout=30) as r: return json.load(r)
           cfg=json.loads(base64.b64decode(api('/contents/release-draft.json?ref=main')['content']))
-          assert cfg['release_id']==448199630 and cfg['tag_name']=='v0.3.5.74'
+          assert cfg['release_id']==448199630 and cfg['tag_name']=='v0.3.5.75'
           current=api('/releases/448199630')
           assert current['draft'] is True, 'Refusing to change a published release'
-          assert current['tag_name'] in ['v0.3.5.70','v0.3.5.74']
-          body=base64.b64decode(api('/contents/releases/0.3.5.74.md?ref=main')['content']).decode()
-          result=api('/releases/448199630',{'tag_name':cfg['tag_name'],'name':'ZAPRET CONTROL 0.3.5.74','body':body,'draft':True,'prerelease':False})
-          assert result['draft'] is True and result['tag_name']=='v0.3.5.74'
+          assert current['tag_name'] in ['v0.3.5.74','v0.3.5.75']
+          body=base64.b64decode(api('/contents/releases/0.3.5.75.md?ref=main')['content']).decode()
+          result=api('/releases/448199630',{'tag_name':cfg['tag_name'],'name':'ZAPRET CONTROL 0.3.5.75','body':body,'draft':True,'prerelease':False})
+          assert result['draft'] is True and result['tag_name']=='v0.3.5.75'
           print('Updated draft:',result['html_url'])
           PY
